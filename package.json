@@ -6,6 +6,7 @@
   "scripts": {
     "build": "webpack",
     "build:dev": "webpack-dev-server",
+    "deploy": "git checkout -B master && yarn build && git add -f public && git commit -am 'deploy' && git filter-branch -f --prune-empty --subdirectory-filter public && git push -f origin master && git checkout develop",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
