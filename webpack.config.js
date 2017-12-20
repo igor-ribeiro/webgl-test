@@ -7,7 +7,7 @@ module.exports = {
   entry: './app.js',
   output: {
     path: path.resolve(__dirname, 'public'),
-    filename: 'app.js',
+    filename: 'app.[hash:5].js',
   },
   devServer: {
     inline: true,
@@ -29,7 +29,7 @@ module.exports = {
     new HTMLWebpackPlugin({
       template: './index.html',
     }),
-    new ExtractTextPlugin('app.css'),
+    new ExtractTextPlugin('app.[hash:5].css'),
     new CopyWebpackPlugin(['./assets/**']),
   ],
 };
