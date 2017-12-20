@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import 'imports-loader?THREE=three!three/examples/js/loaders/OBJLoader';
+import './app.css';
 
 const WIDTH = window.innerWidth - 48;
 const HEIGHT = window.innerHeight - 48;
@@ -29,15 +30,19 @@ window.requestAnimationFrame(
   () => canvasRect = canvas.getBoundingClientRect()
 );
 
-var light = new THREE.AmbientLight(0x404040); // soft white light
+var light = new THREE.AmbientLight(0xcccccc); // soft white light
 scene.add(light);
 
-var directionalLight = new THREE.DirectionalLight(0xffffff, .7);
-directionalLight.position.z = 2.5;
-directionalLight.rotation.x = 2;
+var directionalLight = new THREE.PointLight(0xffffff, .7);
+directionalLight.position.z = 8;
+// directionalLight.position.y = 1;
+// directionalLight.position.x = 1;
+// directionalLight.rotation.x = 2;
+directionalLight.lookAt(scene.position)
+// directionalLight.castShadow = true;
 scene.add(directionalLight);
 
-const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight);
+const directionalLightHelper = new THREE.PointLightHelper(directionalLight);
 // scene.add(directionalLightHelper);
 
 const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -47,40 +52,68 @@ const cube = new THREE.Mesh(geometry, material);
 
 
 const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('texture.jpg');
+const texture = textureLoader.load('assets/texture.jpg');
 
 const loader = new THREE.OBJLoader();
 
 appTitle.innerText = 'Loading...';
 
 loader.load(
-  'model.obj',
+  'assets/model.obj',
   object => {
+      object.scale.x = .1;
+      object.scale.y = .1;
+      object.scale.z = .1;
+
+    object.position.y = -1;
+
+    face = object;
+    object.castShadow = true;
+    object.receiveShadow = true;
+
+      var positions =object.children[0].geometry.attributes.position.array;
+      var vertices = [];
+      for(var i = 0, n = positions.length; i < n; i += 3) {
+          var x = positions[i];
+          var y = positions[i + 1];
+          var z = positions[i + 2];
+          vertices.push(new THREE.Vector3(x, y, z));
+      }
+      var faces = [];
+      for(var i = 0, n = vertices.length; i < n; i += 3) {
+          faces.push(new THREE.Face3(i, i + 1, i + 2));
+      }
+
+    var geometry = new THREE.Geometry();
+    geometry.vertices = vertices;
+    geometry.faces = faces;
+    geometry.computeFaceNormals();
+    geometry.mergeVertices();
+    geometry.computeVertexNormals();
+
     object.traverse(child => {
       if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
         child.material.map = texture;
+        child.geometry.fromGeometry(geometry);
       }
     })
 
-    object.scale.x = .1;
-    object.scale.y = .1;
-    object.scale.z = .1;
 
-    face = object;
-
-    window.setTimeout(() => {
+    // window.setTimeout(() => {
       scene.add(object);
+      // scene.add(mesh);
       appTitle.innerText = 'Beyoung WebGL Test';
-    }, 1000)
+    // }, 1000)
   },
-  xhr => console.log(xhr.loaded / xhr.total * 100),
-  error => console.log(error)
+  // xhr => console.log(xhr.loaded / xhr.total * 100),
+  // error => console.log(error)
 );
 
 canvas.addEventListener('mousemove', event => {
-  if (!face) {
-    return;
-  }
+  // if (!face) {
+  //   return;
+  // }
 
   const middleX = WIDTH / 2;
   const middleY = HEIGHT / 2;
@@ -88,24 +121,20 @@ canvas.addEventListener('mousemove', event => {
   const posX = event.x - Math.floor(canvasRect.x);
   const posY = event.y - Math.floor(canvasRect.y);
   const rotX = (posX - middleX) * rotationFactor;
-  const rotY = (posY - middleY) * .002;
+  const rotY = (posY - middleY) * rotationFactor;
 
-  face.rotation.y = rotX;
-  face.rotation.x = rotY;
+  camera.position.x = -rotX;
+  camera.position.y = rotY;
 });
 
 camera.position.z = 3;
-camera.position.y = 1;
 
 function animate() {
   window.requestAnimationFrame(animate);
 
+  camera.lookAt(scene.position);
 
-  // camera.position.x += ( mouseX - camera.position.x ) * .001;
-  // camera.position.y += ( - mouseY - camera.position.y ) * .05;
-  // camera.lookAt( scene.position );
-  renderer.render( scene, camera );
-  // renderer.render(scene, camera);
+  renderer.render(scene, camera);
 }
 
 animate();

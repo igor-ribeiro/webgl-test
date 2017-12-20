@@ -46047,20 +46047,16 @@ function CanvasRenderer() {
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(2);
-
-
-/***/ }),
-/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_imports_loader_THREE_three_three_examples_js_loaders_OBJLoader__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_imports_loader_THREE_three_three_examples_js_loaders_OBJLoader__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_imports_loader_THREE_three_three_examples_js_loaders_OBJLoader___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_imports_loader_THREE_three_three_examples_js_loaders_OBJLoader__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_css__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__app_css__);
+
 
 
 
@@ -46092,16 +46088,19 @@ window.requestAnimationFrame(
   () => canvasRect = canvas.getBoundingClientRect()
 );
 
-var light = new __WEBPACK_IMPORTED_MODULE_0_three__["AmbientLight"](0x404040); // soft white light
+var light = new __WEBPACK_IMPORTED_MODULE_0_three__["AmbientLight"](0x666666); // soft white light
 scene.add(light);
 
-var directionalLight = new __WEBPACK_IMPORTED_MODULE_0_three__["DirectionalLight"](0xffffff, .7);
-directionalLight.position.z = 2.5;
-directionalLight.rotation.x = 2;
+var directionalLight = new __WEBPACK_IMPORTED_MODULE_0_three__["PointLight"](0xffffff, .9);
+directionalLight.position.z = 2;
+directionalLight.position.y = -2;
+// directionalLight.rotation.x = 2;
+directionalLight.lookAt(scene.position)
+// directionalLight.castShadow = true;
 scene.add(directionalLight);
 
-const directionalLightHelper = new __WEBPACK_IMPORTED_MODULE_0_three__["DirectionalLightHelper"](directionalLight);
-// scene.add(directionalLightHelper);
+const directionalLightHelper = new __WEBPACK_IMPORTED_MODULE_0_three__["PointLightHelper"](directionalLight);
+scene.add(directionalLightHelper);
 
 const geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1, 1, 1);
 const material = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshLambertMaterial"]({ color: 0x00ff00 });
@@ -46114,36 +46113,66 @@ const texture = textureLoader.load('texture.jpg');
 
 const loader = new __WEBPACK_IMPORTED_MODULE_0_three__["OBJLoader"]();
 
+// const modifiter = new THREE.SubdivisionModifiler();
+
 appTitle.innerText = 'Loading...';
 
 loader.load(
-  'model.obj',
+  'assets/model.obj',
   object => {
+      object.scale.x = .1;
+      object.scale.y = .1;
+      object.scale.z = .1;
+
+    object.position.y = -1;
+
+    face = object;
+    object.castShadow = true;
+    object.receiveShadow = true;
+
+      var positions =object.children[0].geometry.attributes.position.array;
+      var vertices = [];
+      for(var i = 0, n = positions.length; i < n; i += 3) {
+          var x = positions[i];
+          var y = positions[i + 1];
+          var z = positions[i + 2];
+          vertices.push(new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](x, y, z));
+      }
+      var faces = [];
+      for(var i = 0, n = vertices.length; i < n; i += 3) {
+          faces.push(new __WEBPACK_IMPORTED_MODULE_0_three__["Face3"](i, i + 1, i + 2));
+      }
+
+    var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["Geometry"]();
+    geometry.vertices = vertices;
+    geometry.faces = faces;
+    geometry.computeFaceNormals();
+    geometry.mergeVertices();
+    geometry.computeVertexNormals();
+
     object.traverse(child => {
       if (child instanceof __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"]) {
+        child.castShadow = true;
         child.material.map = texture;
+        child.geometry.fromGeometry(geometry);
       }
     })
 
-    object.scale.x = .1;
-    object.scale.y = .1;
-    object.scale.z = .1;
 
-    face = object;
-
-    window.setTimeout(() => {
+    // window.setTimeout(() => {
       scene.add(object);
+      // scene.add(mesh);
       appTitle.innerText = 'Beyoung WebGL Test';
-    }, 1000)
+    // }, 1000)
   },
   xhr => console.log(xhr.loaded / xhr.total * 100),
   error => console.log(error)
 );
 
 canvas.addEventListener('mousemove', event => {
-  if (!face) {
-    return;
-  }
+  // if (!face) {
+  //   return;
+  // }
 
   const middleX = WIDTH / 2;
   const middleY = HEIGHT / 2;
@@ -46151,30 +46180,26 @@ canvas.addEventListener('mousemove', event => {
   const posX = event.x - Math.floor(canvasRect.x);
   const posY = event.y - Math.floor(canvasRect.y);
   const rotX = (posX - middleX) * rotationFactor;
-  const rotY = (posY - middleY) * .002;
+  const rotY = (posY - middleY) * rotationFactor;
 
-  face.rotation.y = rotX;
-  face.rotation.x = rotY;
+  camera.position.x = -rotX;
+  // camera.position.y = rotY;
 });
 
 camera.position.z = 3;
-camera.position.y = 1;
 
 function animate() {
   window.requestAnimationFrame(animate);
 
+  camera.lookAt(scene.position);
 
-  // camera.position.x += ( mouseX - camera.position.x ) * .001;
-  // camera.position.y += ( - mouseY - camera.position.y ) * .05;
-  // camera.lookAt( scene.position );
-  renderer.render( scene, camera );
-  // renderer.render(scene, camera);
+  renderer.render(scene, camera);
 }
 
 animate();
 
 /***/ }),
-/* 3 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*** IMPORTS FROM imports-loader ***/
@@ -46897,6 +46922,12 @@ THREE.OBJLoader = ( function () {
 } )();
 
 
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 /******/ ]);
