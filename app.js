@@ -14,7 +14,7 @@ let mouseX = 0;
 let mouseY = 0;
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(55, ASPECT_RATIO, 1, 1000);
+const camera = new THREE.PerspectiveCamera(10, ASPECT_RATIO, 1, 1000);
 const cameraHelper = new THREE.CameraHelper(camera);
 const renderer = new THREE.WebGLRenderer();
 const canvas = renderer.domElement;
@@ -30,13 +30,13 @@ window.requestAnimationFrame(
   () => canvasRect = canvas.getBoundingClientRect()
 );
 
-var light = new THREE.AmbientLight(0xcccccc); // soft white light
+var light = new THREE.AmbientLight(0xeeeeee); // soft white light
 scene.add(light);
 
-var directionalLight = new THREE.PointLight(0xffffff, .7);
-directionalLight.position.z = 8;
-// directionalLight.position.y = 1;
-// directionalLight.position.x = 1;
+var directionalLight = new THREE.PointLight(0xffffff, .5);
+directionalLight.position.z = 4;
+directionalLight.position.y = 2;
+// directionalLight.position.x = -5;
 // directionalLight.rotation.x = 2;
 directionalLight.lookAt(scene.position)
 // directionalLight.castShadow = true;
@@ -123,11 +123,12 @@ canvas.addEventListener('mousemove', event => {
   const rotX = (posX - middleX) * rotationFactor;
   const rotY = (posY - middleY) * rotationFactor;
 
-  camera.position.x = -rotX;
-  camera.position.y = rotY;
+  // camera.position.x = -rotX;
+  // camera.position.y = rotY;
+  face.rotation.y = rotX;
 });
 
-camera.position.z = 3;
+camera.position.z = 15;
 
 function animate() {
   window.requestAnimationFrame(animate);
