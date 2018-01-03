@@ -60,4 +60,4 @@ typings/
 
 
 .history/*
-public/*
+dist/

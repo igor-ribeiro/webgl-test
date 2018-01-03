@@ -33,3 +33,11 @@ body {
   padding: 12px;
   background: #000;
 }
+
+.controls label {
+  display: block;
+}
+
+.control-field {
+  margin-bottom: 12px;
+}
