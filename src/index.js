@@ -13,8 +13,8 @@ import SceneManager from './scene-manager';
 import ControlManager from './control-manager';
 import ImageLoader from './image-loader';
 
-const WIDTH = 500;
-const HEIGHT = 500;
+const WIDTH = 600;
+const HEIGHT = 600;
 const ASPECT_RATIO = WIDTH / HEIGHT;
 const STEP = 0.1;
 
@@ -22,7 +22,7 @@ const STEP = 0.1;
   const app = document.querySelector('#app');
 
   const textureMixer = new TextureMixer();
-  const sceneManager = new SceneManager(app, WIDTH, HEIGHT);
+  const sceneManager = new SceneManager(app, WIDTH, HEIGHT, false);
   const controlManager = new ControlManager();
   const imageLoader = new ImageLoader();
 
@@ -99,7 +99,7 @@ const STEP = 0.1;
   controlManager.handle('.location-x-control', {
     input(event) {
       sceneManager.updateModel(model => {
-        model.position.x = Number(event.target.value) * 2;
+        model.position.x = Number(event.target.value);
       });
     },
   });

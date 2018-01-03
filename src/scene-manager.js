@@ -3,11 +3,12 @@ import * as THREE from 'three';
 import 'imports-loader?THREE=three!three/examples/js/loaders/OBJLoader';
 
 class SceneManager {
-  constructor(rootElement, width, height) {
+  constructor(rootElement, width, height, helpers = true) {
     this.root = rootElement;
     this.width = width;
     this.height = height;
     this.aspectRatio = width / height;
+    this.helpers = helpers;
 
     this.scene = new THREE.Scene();
     this.renderer = new THREE.WebGLRenderer();
@@ -32,7 +33,7 @@ class SceneManager {
     const helper = new THREE.CameraHelper(camera);
 
     this.scene.add(camera);
-    this.scene.add(helper);
+    this.helpers && this.scene.add(helper);
   }
 
   updateCamera(callback) {
@@ -50,7 +51,7 @@ class SceneManager {
 
     const helper = THREE[`${light.type}Helper`];
 
-    if (helper) {
+    if (helper && this.helpers) {
       light.lookAt(this.scene.position);
 
       this.scene.add(new helper(light));
