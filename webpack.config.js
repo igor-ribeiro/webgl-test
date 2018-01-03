@@ -3,16 +3,18 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const WriteFileWebpackPlugin = require('write-file-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[hash].js',
+    publicPath: '/',
   },
   devServer: {
     contentBase: './dist',
-    // hot: true,
+    hot: true,
   },
   module: {
     rules: [
@@ -49,5 +51,6 @@ module.exports = {
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new CleanWebpackPlugin(['dist']),
+    // new WriteFileWebpackPlugin(),
   ],
 };

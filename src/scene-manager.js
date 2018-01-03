@@ -60,18 +60,27 @@ class SceneManager {
   }
 
   addModel(url) {
-    this.objectLoader.load(
-      url,
-      this._onObjectLoaded.bind(this),
-      this._onObjectProgress.bind(this),
-      this._onObjectError.bind(this)
-    );
+    return new Promise(resolve => {
+      this.objectLoader.load(
+        url,
+        object => {
+          this._onObjectLoaded(object);
+          resolve();
+        },
+        this._onObjectProgress.bind(this),
+        this._onObjectError.bind(this)
+      );
+    });
   }
 
   updateModel(callback) {
     callback(this.model);
 
     this.model.needsUpdate = true;
+    this.model.children.forEach(c => {
+      c.material.needsUpdate = true;
+      console.log(c.material.needsUpdate);
+    });
   }
 
   _onObjectLoaded(object) {
@@ -83,9 +92,14 @@ class SceneManager {
 
     this._smoothModel(this.model);
 
+    this.model.material = [
+      new THREE.MeshPhongMaterial(),
+      new THREE.MeshPhongMaterial({ opacity: 0, transparent: true }),
+    ];
+
+    this.model = new THREE.SceneUtils.createMultiMaterialObject(this.model.geometry, this.model.material);
     this.model.scale.set(0.1, 0.1, 0.1);
     this.model.position.y = -1;
-    this.model.material = new THREE.MeshPhongMaterial();
 
     this.scene.add(this.model);
   }
@@ -124,6 +138,14 @@ class SceneManager {
     model.geometry.fromGeometry(geometry);
   }
 
+  applyTextures(textures) {
+    this.model.children.forEach((child, index) => {
+      const texture = new THREE.TextureLoader().load(textures[index].src);
+
+      child.material.map = texture;
+    });
+  }
+
   applyTexture(texture) {
     // const texture = new THREE.TextureLoader().load(url);
 
@@ -133,8 +155,10 @@ class SceneManager {
       return;
     }
 
-    this.model.material.map = texture;
-    this.model.material.needsUpdate = true;
+    // this.model.material.map = texture;
+    // this.model.material.needsUpdate = true;
+    // this.model.material.forEach(m => m.needsUpdate = true);
+    this.model.children[1].material.opacity = texture;
   }
 
   render() {

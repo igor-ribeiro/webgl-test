@@ -6,19 +6,20 @@ class TextureMixer {
     this.context = null;
     this.pixels = null;
     this.texturesData = null;
+    this.textures = null;
   }
 
   async load(urls) {
-    const textures = await Promise.all(urls.map(url => loadImage(url)));
+    this.textures = await Promise.all(urls.map(url => loadImage(url)));
 
-    const textureWidth = textures[0].width;
-    const textureHeight = textures[0].height;
+    const textureWidth = this.textures[0].width;
+    const textureHeight = this.textures[0].height;
 
     this.canvas = this._createCanvas(textureWidth, textureHeight);
     this.context = this.canvas.getContext('2d');
     this.pixels = 4 * textureWidth * textureHeight;
 
-    this.texturesData = textures.map(texture => {
+    this.texturesData = this.textures.map(texture => {
       this.context.drawImage(texture, 0, 0);
 
       return this.context.getImageData(0, 0, textureWidth, textureHeight).data;
@@ -54,6 +55,7 @@ class TextureMixer {
   }
 
   generate(min, max, step, textureLoader) {
+    step = 1;
     const keyName = 'text-';
     const saved = window.localStorage.getItem('generated-textures');
 
