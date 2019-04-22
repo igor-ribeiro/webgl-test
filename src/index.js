@@ -1,17 +1,17 @@
-import './app.css';
+import "./app.css";
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
-import acneTextureURL from './assets/texture-acne.jpg';
-import cleanTextureURL from './assets/texture-clean.jpg';
-import modelURL from './assets/model.obj';
+import acneTextureURL from "./assets/texture-acne-small.jpg";
+import cleanTextureURL from "./assets/texture-clean-small.jpg";
+import modelURL from "./assets/model.obj";
 
-import { loadImage } from './utils';
+import { loadImage } from "./utils";
 
-import TextureMixer from './texture-mixer';
-import SceneManager from './scene-manager';
-import ControlManager from './control-manager';
-import ImageLoader from './image-loader';
+import TextureMixer from "./texture-mixer";
+import SceneManager from "./scene-manager";
+import ControlManager from "./control-manager";
+import ImageLoader from "./image-loader";
 
 const WIDTH = 600;
 const HEIGHT = 600;
@@ -19,7 +19,7 @@ const ASPECT_RATIO = WIDTH / HEIGHT;
 const STEP = 0.1;
 
 (async function init() {
-  const app = document.querySelector('#app');
+  const app = document.querySelector("#app");
 
   const textureMixer = new TextureMixer();
   const sceneManager = new SceneManager(app, WIDTH, HEIGHT, false);
@@ -31,17 +31,13 @@ const STEP = 0.1;
 
   const ambientLight = new THREE.AmbientLight(0xcccccc);
 
-  const pointLightWhite = new THREE.PointLight(0xffffff, .5);
+  const pointLightWhite = new THREE.PointLight(0xffffff, 0.5);
   pointLightWhite.position.set(2, 2, 2);
 
-  const pointLightRed = new THREE.PointLight(0xffffff, .3);
+  const pointLightRed = new THREE.PointLight(0xffffff, 0.3);
   pointLightRed.position.set(0, 1, 50);
 
-  sceneManager.addLight([
-    ambientLight,
-    pointLightWhite,
-    pointLightRed,
-  ]);
+  sceneManager.addLight([ambientLight, pointLightWhite, pointLightRed]);
 
   sceneManager.render();
 
@@ -55,17 +51,17 @@ const STEP = 0.1;
   console.log('Generated.');
   */
 
-  console.log('Loading textures...');
-  const textures = await imageLoader.load([ acneTextureURL, cleanTextureURL ]);
-  console.log('Textures loaded.');
+  console.log("Loading textures...");
+  const textures = await imageLoader.load([acneTextureURL, cleanTextureURL]);
+  console.log("Textures loaded.");
 
-  console.log('Loading model...');
+  console.log("Loading model...");
   await sceneManager.addModel(modelURL);
-  console.log('Loaded');
+  console.log("Loaded");
 
   sceneManager.applyTextures(textures);
 
-  controlManager.handle('.effect-control', {
+  controlManager.handle(".effect-control", {
     setup(el) {
       el.step = STEP;
 
@@ -76,31 +72,31 @@ const STEP = 0.1;
 
       // sceneManager.applyTexture(t);
       sceneManager.applyTexture(event.target.value);
-    },
+    }
   });
 
-  controlManager.handle('.zoom-control', {
+  controlManager.handle(".zoom-control", {
     input(event) {
       sceneManager.updateCamera(camera => {
         // camera.zoom = Number(event.target.value);
         camera.position.z = Number(event.target.value) * 7;
       });
-    },
+    }
   });
 
-  controlManager.handle('.model-control', {
+  controlManager.handle(".model-control", {
     input(event) {
       sceneManager.updateModel(model => {
         model.rotation.y = -Number(event.target.value);
       });
-    },
+    }
   });
 
-  controlManager.handle('.location-x-control', {
+  controlManager.handle(".location-x-control", {
     input(event) {
       sceneManager.updateModel(model => {
         model.position.x = Number(event.target.value);
       });
-    },
+    }
   });
 })();
