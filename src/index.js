@@ -78,8 +78,10 @@ const STEP = 0.1;
   controlManager.handle(".zoom-control", {
     input(event) {
       sceneManager.updateCamera(camera => {
-        // camera.zoom = Number(event.target.value);
-        camera.position.z = Number(event.target.value) * 7;
+        const min = 7;
+        const max = 140;
+
+        camera.position.z = min + (max - Number(event.target.value) * 7);
       });
     }
   });
@@ -87,7 +89,7 @@ const STEP = 0.1;
   controlManager.handle(".model-control", {
     input(event) {
       sceneManager.updateModel(model => {
-        model.rotation.y = -Number(event.target.value);
+        model.rotation.y = Number(event.target.value) * -1;
       });
     }
   });
